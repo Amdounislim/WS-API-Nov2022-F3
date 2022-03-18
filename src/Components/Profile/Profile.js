@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import axios from "axios"
-import { useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import './Profile.css'
+import Post from '../Post'
 
 const Profile = () => {
     const [user, setUser] = useState({})
+    const [posts, setPosts] = useState([])
+
 
     const params = useParams()
+    const navigate = useNavigate()
 
     const fetchUser = () => {
         axios.get(`https://jsonplaceholder.typicode.com/users/${params.id}`)
@@ -14,8 +18,16 @@ const Profile = () => {
             .catch(err => console.log(err))
     }
 
+    const fetchPosts = () => {
+        fetch(`https://jsonplaceholder.typicode.com/posts?userId=${params.id}`)
+            .then(res => res.json())
+            .then(res => setPosts(res))
+            .catch(err => console.log(err))
+    }
+
     useEffect(() => {
-        fetchUser()
+        fetchUser();
+        fetchPosts()
     }, [params])
 
 
@@ -23,9 +35,11 @@ const Profile = () => {
     return (
         <div className="container-fluid">
             <div className="row header">
-                <div className="col-md-3 my-auto">
-                    <h3>Back</h3>
-                </div>
+                <Link to='/'>
+                    <div className="col-md-3 my-auto" onClick={() => navigate(-1)}>
+                        <h3>Back</h3>
+                    </div>
+                </Link>
             </div>
             <div className="row ">
                 <div className="col-md-4 offset-md-4 row-img-profile  ">
@@ -50,6 +64,9 @@ const Profile = () => {
                 <div className="col-md-4 offset-md-4 name-label">
                     <span className="adress-label">{user.phone}</span>
                 </div>
+            </div>
+            <div className="row post-container justify-content-around" >
+                {posts.map((post, i) => (<Post post={post} key={i} />))}
             </div>
 
         </div>
